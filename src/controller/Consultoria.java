@@ -1,14 +1,14 @@
 
 package controller;
 
-import view.Principal;
+import view.LoginView;
 
 
 public class Consultoria {
 
    
     public static void main(String[] args) {
-       Principal principal = new Principal();
+       LoginView loginview = new LoginView();
     }
     
 }

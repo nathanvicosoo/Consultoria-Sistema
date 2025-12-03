@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import model.Cliente;
 import dao.Conexao;
+import java.util.List;
+import java.util.ArrayList;
 
 
 public class ClienteDAO {
@@ -69,4 +71,17 @@ public class ClienteDAO {
     pst.execute();
     pst.close();
     }    
+    
+    public List<Cliente> ListaCliente() throws SQLException {
+    List<Cliente>listaClientes;
+    listaClientes = new ArrayList<>();
+    sql = "SELECT * FROM cliente order by nomeCliente";
+    pst = Conexao.getInstance().prepareStatement(sql);
+    ResultSet rs = pst.executeQuery();
+    while (rs.next()){
+        listaClientes.add(new Cliente(rs.getInt("codigoCliente"), rs.getString("nomeCliente"), rs.getString("telefoneCliente"), rs.getString("emailCliente")));
+    }
+    pst.close();
+    return listaClientes;
+    }
 }

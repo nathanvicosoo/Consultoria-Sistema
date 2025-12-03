@@ -1,15 +1,20 @@
 package view;
 
 import javax.swing.JFrame;
+import model.Usuario;
 
 
 public class Principal extends javax.swing.JFrame {
 
     
-    public Principal() {
+    public Principal(Usuario usuario) {
         initComponents();
         this.setVisible(true);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        
+        if (usuario.getTipo().equals("cliente")){
+        mniCliente.setVisible(false);
+        }
     }
    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

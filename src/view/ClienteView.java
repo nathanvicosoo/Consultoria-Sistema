@@ -1,10 +1,26 @@
 package view;
 
 import DAO.ClienteDAO;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import java.awt.Desktop;
+import java.util.List;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
 import model.Cliente;
 
 
@@ -12,6 +28,7 @@ import model.Cliente;
 public class ClienteView extends javax.swing.JInternalFrame {
     Cliente cliente;
     ClienteDAO clienteDAO;
+    Document doc;
     
     public void ativaCampos(){
         txtNome.setEnabled(true);
@@ -83,6 +100,91 @@ public class ClienteView extends javax.swing.JInternalFrame {
         
     }
     
+    public void gerarDocumento() throws DocumentException{
+    try{
+        List<Cliente> lista = new ArrayList<>();
+        lista = clienteDAO.ListaCliente();
+        doc = new Document(PageSize.A4, 41.5f, 41.5f, 55.2f, 55.2f);
+        PdfWriter.getInstance((com.lowagie.text.Document) doc, new FileOutputStream("C:/SRS/RelatorioCliente"+".pdf"));
+        doc.open();
+
+        Font f1 = new Font(Font.HELVETICA, 14, Font.BOLD);
+        Font f2 = new Font(Font.HELVETICA, 12, Font.BOLD);
+        Font f3 = new Font(Font.HELVETICA, 12, Font.NORMAL);
+        Font f4 = new Font(Font.HELVETICA, 10, Font.BOLD);
+        Font f5 = new Font(Font.HELVETICA, 10, Font.NORMAL);
+
+        Paragraph titulo1 = new Paragraph("Universidade do Estado de Minas Gerais", f2);
+        titulo1.setAlignment(Element.ALIGN_CENTER);
+        titulo1.setSpacingAfter(10);
+
+        Paragraph titulo2 = new Paragraph("Relatório de Clientes", f1);
+        titulo2.setAlignment(Element.ALIGN_CENTER);
+        titulo2.setSpacingAfter(0);
+
+        PdfPTable tabela = new PdfPTable(new float[]{0.33f, 0.33f, 0.33f}); 
+        tabela.setHorizontalAlignment(Element.ALIGN_CENTER);
+        tabela.setWidthPercentage(100f);
+
+
+        PdfPCell cabecalho1 = new PdfPCell (new Paragraph("Nome:", f3));
+        cabecalho1.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+        cabecalho1.setBorder(0);
+        
+        PdfPCell cabecalho2 = new PdfPCell (new Paragraph("Telefone:", f3));
+        cabecalho2.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+        cabecalho2.setBorder(0);
+        
+        PdfPCell cabecalho3 = new PdfPCell (new Paragraph("Email:", f3));
+        cabecalho3.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
+        cabecalho3.setBorder(0);
+        
+        tabela.addCell(cabecalho1);
+        tabela.addCell(cabecalho2);
+        tabela.addCell(cabecalho3);
+
+    
+        for (Cliente cliente: lista){
+
+            Paragraph p1 = new Paragraph(cliente.getNomeCliente(), f5);
+            p1.setAlignment(Element.ALIGN_JUSTIFIED);
+            PdfPCell col1 = new PdfPCell(p1);
+            col1.setBorder(0);
+
+            Paragraph p2 = new Paragraph(cliente.getTelefoneCliente(), f5);
+            p1.setAlignment(Element.ALIGN_JUSTIFIED);
+            PdfPCell col2 = new PdfPCell(p2);
+            col2.setBorder(0);
+
+            Paragraph p3 = new Paragraph(cliente.getEmailCliente(), f5);
+            p1.setAlignment(Element.ALIGN_JUSTIFIED);
+            PdfPCell col3 = new PdfPCell(p3);
+            col3.setBorder(0);
+
+              tabela.addCell(col1);
+              tabela.addCell(col2);
+              tabela.addCell(col3);
+        }
+            
+            doc.add(titulo2);
+            doc.add(titulo1);
+            doc.add(tabela);
+            doc.close();
+    
+            JOptionPane.showMessageDialog(null, "Relatório salvo com sucesso");
+            String caminho = "C:/SRS/RelatorioCliente.pdf";
+            Desktop.getDesktop().open(new File(caminho));
+    }catch(DocumentException e){
+        e.printStackTrace();
+    }catch(SQLException ex){
+       ex.printStackTrace();
+    }catch(IOException exx) {
+      exx.printStackTrace();
+      JOptionPane.showMessageDialog(null, "Documento de Requisitos aberto. Feche para gerar um novo!");              
+        }
+    }
+    
+   
     
     public ClienteView() {
         clienteDAO = new ClienteDAO();
@@ -117,6 +219,7 @@ public class ClienteView extends javax.swing.JInternalFrame {
         btnExcluir = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         btnNovo = new javax.swing.JButton();
+        btnRelatorio = new javax.swing.JButton();
 
         setClosable(true);
 
@@ -197,6 +300,13 @@ public class ClienteView extends javax.swing.JInternalFrame {
             }
         });
 
+        btnRelatorio.setText("Relatório");
+        btnRelatorio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRelatorioActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -246,7 +356,10 @@ public class ClienteView extends javax.swing.JInternalFrame {
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtNome)
-                            .addComponent(txtCpf))))
+                            .addComponent(txtCpf)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnRelatorio)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -284,7 +397,9 @@ public class ClienteView extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addComponent(btnRelatorio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGravar)
                     .addComponent(btnAlterar)
@@ -292,7 +407,7 @@ public class ClienteView extends javax.swing.JInternalFrame {
                     .addComponent(btnExcluir)
                     .addComponent(btnCancelar)
                     .addComponent(btnNovo))
-                .addGap(29, 29, 29))
+                .addGap(18, 18, 18))
         );
 
         pack();
@@ -398,6 +513,21 @@ public class ClienteView extends javax.swing.JInternalFrame {
         desativaCampos();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+    private void btnRelatorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRelatorioActionPerformed
+       String nomediretorio = null; 
+       String nomepasta = "SRS";
+       String separador = java.io.File.separator;
+       try{
+       nomediretorio = "C:" + separador + nomepasta;
+       if (!new File(nomediretorio).exists()){
+           (new File(nomediretorio)).mkdir();
+       }
+       gerarDocumento();
+       }catch(Exception e) {
+       e.printStackTrace();
+       }
+    }//GEN-LAST:event_btnRelatorioActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAlterar;
@@ -406,6 +536,7 @@ public class ClienteView extends javax.swing.JInternalFrame {
     private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnGravar;
     private javax.swing.JButton btnNovo;
+    private javax.swing.JButton btnRelatorio;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

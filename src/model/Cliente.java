@@ -92,6 +92,13 @@ public class Cliente {
 
     public Cliente() {
     }
+
+    public Cliente(int codigoCliente, String nomeCliente, String telefoneCliente, String emailCliente) {
+        this.codigoCliente = codigoCliente;
+        this.nomeCliente = nomeCliente;
+        this.telefoneCliente = telefoneCliente;
+        this.emailCliente = emailCliente;
+    }
     
     
 }
